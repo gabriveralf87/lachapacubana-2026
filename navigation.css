@@ -1,0 +1,21 @@
+/* Shared navigation: all three pages use this single style source. */
+.site-header{background:#071427;color:#fff;position:sticky;top:0;z-index:50;font-family:Arial,Helvetica,sans-serif}
+.site-nav{max-width:1180px;margin:auto;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:24px;position:relative}
+.site-brand{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:900;letter-spacing:.04em;color:#fff;text-decoration:none;flex-shrink:0}
+.site-brand img{width:42px;height:42px;object-fit:contain;flex-shrink:0}
+.site-brand span{color:#d9272e}
+.site-menu{display:flex;align-items:center;gap:26px;font-size:17px;font-weight:800}
+.site-menu a{color:#fff;text-decoration:none;padding:10px 0;line-height:1.4}
+.site-menu a[aria-current="page"]{color:#ff656b}
+.site-menu a:hover{color:#ff656b}
+.site-menu-toggle{display:none;background:transparent;border:1px solid #ffffff55;color:#fff;border-radius:9px;font:24px Arial,sans-serif;padding:5px 10px;cursor:pointer}
+.site-header a:focus-visible,.site-menu-toggle:focus-visible{outline:2px solid #f3c24f;outline-offset:4px}
+@media(max-width:800px){
+.site-nav{gap:12px}
+.site-brand{font-size:17px}
+.site-menu-toggle{display:block}
+.site-menu{display:none;position:absolute;top:100%;left:16px;right:16px;background:#071427;border:1px solid #ffffff22;border-radius:12px;padding:10px;box-shadow:0 12px 28px #0005;align-items:stretch;gap:0}
+.site-nav.menu-open .site-menu{display:flex;flex-direction:column}
+.site-menu a{padding:12px 10px;border-bottom:1px solid #ffffff18;font-size:17px;font-weight:800}
+.site-menu a:last-child{border-bottom:0}
+}
