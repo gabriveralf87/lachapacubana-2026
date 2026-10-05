@@ -12,7 +12,7 @@ table{width:100%;border-collapse:collapse;min-width:520px}th{background:var(--bl
 .note{background:#eef4fb;border-left:5px solid var(--blue);padding:16px 18px;border-radius:10px;color:#344054;font-size:14px;margin-top:20px}
 footer{background:#050e1b;color:#8fa0b8;padding:28px 22px;text-align:center}.loading{text-align:center;color:var(--muted);padding:30px}.error{color:#b42318;background:#fef3f2;padding:14px;border-radius:10px}
 @media(max-width:800px){.nav{align-items:flex-start;gap:10px}.brand{flex:none;font-size:13px}nav{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px;font-size:13px}.summary{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}}@media(max-width:500px){.summary{grid-template-columns:1fr}.hero{padding-top:45px}}
-.menu-toggle{display:none;background:transparent;border:1px solid #ffffff55;color:#fff;border-radius:9px;font-size:24px;padding:5px 10px;cursor:pointer}@media(max-width:800px){.nav{position:relative;align-items:center}.menu-toggle{display:block}.nav nav{display:none;position:absolute;top:100%;right:16px;left:16px;background:#071427;border:1px solid #ffffff22;border-radius:12px;padding:10px;box-shadow:0 12px 28px #0005;z-index:20}.nav.menu-open nav{display:flex;flex-direction:column;gap:0}.nav nav a{padding:12px 10px;border-bottom:1px solid #ffffff18;font-size:16px}.nav nav a:last-child{border-bottom:0}}body{font-size:19px}.hero p{font-size:19px}.stat span{font-size:14px}.panel .hint{font-size:15px}td{font-size:16px}th{font-size:13px}nav{font-size:15px}</style><link rel="stylesheet" href="navigation.css"><script src="navigation.js" defer></script></head><body>
+.menu-toggle{display:none;background:transparent;border:1px solid #ffffff55;color:#fff;border-radius:9px;font-size:24px;padding:5px 10px;cursor:pointer}@media(max-width:800px){.nav{position:relative;align-items:center}.menu-toggle{display:block}.nav nav{display:none;position:absolute;top:100%;right:16px;left:16px;background:#071427;border:1px solid #ffffff22;border-radius:12px;padding:10px;box-shadow:0 12px 28px #0005;z-index:20}.nav.menu-open nav{display:flex;flex-direction:column;gap:0}.nav nav a{padding:12px 10px;border-bottom:1px solid #ffffff18;font-size:16px}.nav nav a:last-child{border-bottom:0}}body{font-size:19px}.hero p{font-size:19px}.stat span{font-size:14px}.panel .hint{font-size:15px}td{font-size:16px}th{font-size:13px}nav{font-size:15px}#expenses td:nth-child(2){min-width:220px;white-space:normal;overflow-wrap:anywhere;line-height:1.5}</style><link rel="stylesheet" href="navigation.css"><script src="navigation.js" defer></script></head><body>
 <header class="site-header"><div class="site-nav"><a class="site-brand" href="index.html" aria-label="La Chapa Cubana — Home"><img src="https://drive.google.com/thumbnail?id=1ET58pvMTyD2m4tdaB0bdSCX0FVd7vZmN&sz=w120" alt="La Chapa"><div>LA CHAPA <span>CUBANA</span></div></a><nav id="site-menu" class="site-menu" aria-label="Menú principal"><a href="index.html">Home</a><a href="resultados.html">Resultados / Calendario</a><a href="finanzas.html">Finanzas</a></nav><button class="site-menu-toggle" type="button" aria-label="Abrir menú" aria-controls="site-menu" aria-expanded="false">☰</button></div></header>
 <section class="hero"><div class="wrap"><div class="eyebrow">TRANSPARENCIA FINANCIERA · 2026</div><h1>Finanzas</h1><p>Ingresos, gastos, presupuesto y premios de la Liga de Otoño de La Chapa Cubana Sarasota–Bradenton 2026.</p></div></section>
 <main class="wrap"><div class="summary" id="summary"><div class="loading">Cargando datos desde Google Sheet…</div></div>
@@ -23,17 +23,17 @@ footer{background:#050e1b;color:#8fa0b8;padding:28px 22px;text-align:center}.loa
 const SHEET_ID='1kuIwlCn_TmhdhG2Jv3Icc4I9IESxWwha4PZC-g171dI';
 const money=v=>{if(v===null||v===undefined||v==='')return '';if(typeof v==='number')return v.toLocaleString('en-US',{style:'currency',currency:'USD'});let s=String(v);return s.startsWith('$')?s:s};
 const date=v=>{if(!v)return '';let s=String(v),m=s.match(/^Date\((\d+),(\d+),(\d+)\)$/);return m?(+m[2]+1).toString().padStart(2,'0')+'/'+(+m[3]).toString().padStart(2,'0')+'/'+m[1]:s};
-async function rows(){
- const url='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:json&sheet=Finanzas&range=A1:K100';
+async function rows(range='A1:K100',width=11,headers=0){
+ const url='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:json&sheet=Finanzas&range='+encodeURIComponent(range)+'&headers='+headers;
  const t=await fetch(url,{cache:'no-store'}).then(r=>r.text()); const j=JSON.parse(t.substring(t.indexOf('{'),t.lastIndexOf('}')+1));
- return j.table.rows.map(r=>{const a=Array(11).fill('');(r.c||[]).forEach((c,i)=>{if(!c)return;const v=(c.f!==undefined&&c.f!==null)?c.f:c.v;a[i]=(v===undefined||v===null)?'':String(v);});return a;});
+ return j.table.rows.map(r=>{const a=Array(width).fill('');(r.c||[]).forEach((c,i)=>{if(!c)return;const v=(c.f!==undefined&&c.f!==null)?c.f:c.v;a[i]=(v===undefined||v===null)?'':String(v);});return a;});
 }
 function table(headers,rs,classes=[]){
  return '<table><thead><tr>'+headers.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+rs.map((r,i)=>'<tr class="'+(classes[i]||'')+'">'+r.map((x,j)=>'<td class="'+(j===r.length-1?'money':'')+'">'+(x??'')+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
 }
 async function load(){
  try{
-  const r=await rows();
+  const [r,expenseRows]=await Promise.all([rows(),rows('F14:K100',6,1)]);
   const indicators={}; for(let i=0;i<r.length;i++){if(r[i][0])indicators[String(r[i][0]).trim()]=r[i][1]||''}
   document.getElementById('summary').innerHTML=
    '<div class="stat"><span>TOTAL RECAUDADO</span><strong>'+money(indicators['Total recaudado'])+'</strong></div>'+
@@ -44,7 +44,10 @@ async function load(){
   const inc=[],exp=[];
   for(let i=0;i<r.length;i++){
     if(isDate(r[i][0]) && r[i][3]!=='' && r[i][3]!=null) inc.push([date(r[i][0]),r[i][1]||'',r[i][2]||'',money(r[i][3])]);
-    if(isDate(r[i][5]) && r[i][10]!=='' && r[i][10]!=null) exp.push([date(r[i][5]),r[i][6]||'',r[i][7]||'',money(r[i][8]),r[i][9]||'',money(r[i][10])]);
+
+  }
+  for(const row of expenseRows){
+    if(isDate(row[0]) && row[5]!=='' && row[5]!=null) exp.push([date(row[0]),row[1]||'',row[2]||'',money(row[3]),row[4]||'',money(row[5])]);
   }
   document.getElementById('income').innerHTML=inc.length?table(['Fecha','Equipo / Fuente','Concepto','Monto'],inc):'<p class="loading">Sin ingresos registrados.</p>';
   document.getElementById('expenses').innerHTML=exp.length?table(['Fecha','Descripción','Cantidad','Precio Unitario','Categoría','Monto'],exp):'<p class="loading">Sin gastos registrados.</p>';
