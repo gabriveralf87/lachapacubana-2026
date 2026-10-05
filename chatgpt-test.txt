@@ -1,0 +1,3 @@
+Prueba de conexión ChatGPT ↔ GitHub para La Chapa Cubana 2026.
+
+La escritura directa desde ChatGPT está funcionando.
