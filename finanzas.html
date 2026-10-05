@@ -26,7 +26,7 @@ const date=v=>{if(!v)return '';let s=String(v),m=s.match(/^Date\((\d+),(\d+),(\d
 async function rows(){
  const url='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:json&sheet=Finanzas';
  const t=await fetch(url+'&headers=0',{cache:'no-store'}).then(r=>r.text()); const j=JSON.parse(t.substring(t.indexOf('{'),t.lastIndexOf('}')+1));
- return j.table.rows.map(r=>{const a=Array(9).fill('');(r.c||[]).forEach((c,i)=>a[i]=c?(c.f??c.v):'');return a;});
+ return j.table.rows.map(r=>{const a=Array(11).fill('');(r.c||[]).forEach((c,i)=>a[i]=c?(c.f??c.v):'');return a;});
 }
 function table(headers,rs,classes=[]){
  return '<table><thead><tr>'+headers.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+rs.map((r,i)=>'<tr class="'+(classes[i]||'')+'">'+r.map((x,j)=>'<td class="'+(j===r.length-1?'money':'')+'">'+(x??'')+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
@@ -44,11 +44,11 @@ async function load(){
   const inc=[],exp=[];
   for(let i=0;i<r.length;i++){
     if(isDate(r[i][0]) && r[i][3]!=='' && r[i][3]!=null) inc.push([date(r[i][0]),r[i][1]||'',r[i][2]||'',money(r[i][3])]);
-    if(isDate(r[i][5]) && r[i][8]!=='' && r[i][8]!=null) exp.push([date(r[i][5]),r[i][6]||'',r[i][7]||'',money(r[i][8])]);
+    if(isDate(r[i][5]) && r[i][10]!=='' && r[i][10]!=null) exp.push([date(r[i][5]),r[i][6]||'',r[i][7]||'',money(r[i][8]),r[i][9]||'',money(r[i][10])]);
   }
   document.getElementById('income').innerHTML=inc.length?table(['Fecha','Equipo / Fuente','Concepto','Monto'],inc):'<p class="loading">Sin ingresos registrados.</p>';
-  document.getElementById('expenses').innerHTML=exp.length?table(['Fecha','Descripción','Categoría','Monto'],exp):'<p class="loading">Sin gastos registrados.</p>';
-  const expTotal=exp.reduce((s,r)=>{let n=parseFloat(String(r[3]).replace(/[$,]/g,''));return s+(isNaN(n)?0:n)},0); document.getElementById('expenseTotal').innerHTML=exp.length?'<div style="display:flex;justify-content:flex-end;align-items:center;gap:20px;padding:18px 12px 4px;font-size:18px"><b>TOTAL GASTOS</b><strong style="font-size:24px;color:#d9272e">'+money(expTotal)+'</strong></div>':'';
+  document.getElementById('expenses').innerHTML=exp.length?table(['Fecha','Descripción','Cantidad','Precio Unitario','Categoría','Monto'],exp):'<p class="loading">Sin gastos registrados.</p>';
+  const expTotal=exp.reduce((s,r)=>{let n=parseFloat(String(r[5]).replace(/[$,]/g,''));return s+(isNaN(n)?0:n)},0); document.getElementById('expenseTotal').innerHTML=exp.length?'<div style="display:flex;justify-content:flex-end;align-items:center;gap:20px;padding:18px 12px 4px;font-size:18px"><b>TOTAL GASTOS</b><strong style="font-size:24px;color:#d9272e">'+money(expTotal)+'</strong></div>':'';
   const bud=[]; for(let i=0;i<r.length;i++){if(r[i][5] && String(r[i][7]||'').toLowerCase()==='proyectado') bud.push([r[i][5],money(r[i][6]),r[i][7]||'']);}
   document.getElementById('budget').innerHTML=bud.length?table(['Concepto','Monto','Estado'],bud,bud.map(x=>String(x[0]).toLowerCase().includes('total')?'budget-total':'')):'<p class="loading">Sin presupuesto registrado.</p>';
  }catch(e){document.getElementById('summary').innerHTML='<div class="error">No se pudieron cargar las finanzas. Verifique el acceso público del Google Sheet.</div>'}
