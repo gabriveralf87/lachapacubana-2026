@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Finanzas | La Chapa Cubana 2026</title>
+<style>
+:root{--navy:#071427;--blue:#0d2d55;--red:#d9272e;--gold:#f3c24f;--green:#16794b;--bg:#f5f7fb;--muted:#667085}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:#101828}a{text-decoration:none;color:inherit}
+header{background:var(--navy);color:#fff;position:sticky;top:0;z-index:5}.nav{max-width:1180px;margin:auto;display:flex;align-items:center;justify-content:space-between;padding:16px 22px}.brand{font-weight:900;display:flex;align-items:center;gap:10px}.brand img{width:42px;height:42px;object-fit:contain}.brand span{color:var(--red)}nav{display:flex;gap:22px;font-weight:700;font-size:14px}
+.hero{background:linear-gradient(135deg,#071427,#0d2d55 70%,#173d6e);color:#fff;padding:62px 22px}.wrap{max-width:1180px;margin:auto}.eyebrow{color:var(--gold);font-weight:900;letter-spacing:.12em;font-size:13px}.hero h1{font-size:clamp(42px,6vw,68px);margin:10px 0 12px}.hero p{color:#dbe4f0;font-size:18px;margin:0;max-width:720px;line-height:1.5}
+section{padding:42px 22px}.title{font-size:30px;margin:0 0 7px}.sub{color:var(--muted);margin:0 0 22px}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:-28px;position:relative}.stat{background:#fff;border:1px solid #e5e9f0;border-radius:18px;padding:22px;box-shadow:0 8px 24px #0b1b3410}.stat span{font-size:13px;color:var(--muted);font-weight:800}.stat strong{display:block;font-size:29px;margin-top:7px;color:var(--blue)}.stat.balance strong{color:var(--green)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}.panel{background:#fff;border:1px solid #e5e9f0;border-radius:18px;padding:22px;box-shadow:0 8px 24px #0b1b3410;overflow:auto}.panel h2{margin:0 0 6px;font-size:23px}.panel .hint{color:var(--muted);font-size:13px;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;min-width:520px}th{background:var(--blue);color:#fff;text-align:left;padding:12px;font-size:12px;text-transform:uppercase;letter-spacing:.03em}td{padding:12px;border-bottom:1px solid #edf0f4;font-size:14px}td.money{text-align:right;font-weight:800}tr:last-child td{border-bottom:0}.budget-total td{background:#fff4db;font-weight:900}.status{font-size:11px;font-weight:900;padding:4px 8px;border-radius:20px;background:#e9eef6;color:#344054}
+.note{background:#eef4fb;border-left:5px solid var(--blue);padding:16px 18px;border-radius:10px;color:#344054;font-size:14px;margin-top:20px}
+footer{background:#050e1b;color:#8fa0b8;padding:28px 22px;text-align:center}.loading{text-align:center;color:var(--muted);padding:30px}.error{color:#b42318;background:#fef3f2;padding:14px;border-radius:10px}
+@media(max-width:800px){nav{display:none}.summary{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}}@media(max-width:500px){.summary{grid-template-columns:1fr}.hero{padding-top:45px}}
+</style></head><body>
+<header><div class="nav"><div class="brand"><img src="https://drive.google.com/thumbnail?id=1ET58pvMTyD2m4tdaB0bdSCX0FVd7vZmN&sz=w120" alt="La Chapa"><div>LA CHAPA <span>CUBANA</span></div></div><nav><a href="index.html">Home</a><a href="resultados.html">Resultados / Calendario</a><a href="finanzas.html">Finanzas</a></nav></div></header>
+<section class="hero"><div class="wrap"><div class="eyebrow">TRANSPARENCIA FINANCIERA · 2026</div><h1>Finanzas</h1><p>Ingresos, gastos, presupuesto y premios de la Liga de Otoño de La Chapa Cubana Sarasota–Bradenton 2026.</p></div></section>
+<main class="wrap"><div class="summary" id="summary"><div class="loading">Cargando datos desde Google Sheet…</div></div>
+<section><div class="grid2"><div class="panel"><h2>Dinero recogido</h2><div class="hint">Fecha, fuente, concepto y monto recibido.</div><div id="income"></div></div><div class="panel"><h2>Gastos realizados</h2><div class="hint">Gastos reales registrados hasta la fecha.</div><div id="expenses"></div></div></div></section>
+<section style="padding-top:0"><div class="panel"><h2>Presupuesto proyectado</h2><div class="hint">Gastos previstos, presupuesto operacional y fondos destinados a premios, misceláneas y contingencias.</div><div id="budget"></div><div class="note">Esta página se actualiza automáticamente con la información registrada en la pestaña <b>Finanzas</b> del Google Sheet oficial.</div></div></section></main>
+<footer>Liga de Otoño de la Chapa Cubana Sarasota–Bradenton 2026</footer>
+<script>
+const SHEET_ID='1kuIwlCn_TmhdhG2Jv3Icc4I9IESxWwha4PZC-g171dI';
+const money=v=>{if(v===null||v===undefined||v==='')return '';if(typeof v==='number')return v.toLocaleString('en-US',{style:'currency',currency:'USD'});let s=String(v);return s.startsWith('$')?s:s};
+const date=v=>{if(!v)return '';let s=String(v),m=s.match(/^Date\((\d+),(\d+),(\d+)\)$/);return m?(+m[2]+1).toString().padStart(2,'0')+'/'+(+m[3]).toString().padStart(2,'0')+'/'+m[1]:s};
+async function rows(){
+ const url='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:json&sheet=Finanzas';
+ const t=await fetch(url,{cache:'no-store'}).then(r=>r.text()); const j=JSON.parse(t.substring(t.indexOf('{'),t.lastIndexOf('}')+1));
+ return j.table.rows.map(r=>(r.c||[]).map(c=>c?(c.f??c.v):''));
+}
+function table(headers,rs,classes=[]){
+ return '<table><thead><tr>'+headers.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+rs.map((r,i)=>'<tr class="'+(classes[i]||'')+'">'+r.map((x,j)=>'<td class="'+(j===r.length-1?'money':'')+'">'+(x??'')+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+}
+async function load(){
+ try{
+  const r=await rows();
+  const indicators={}; for(let i=0;i<r.length;i++){if(r[i][0])indicators[String(r[i][0]).trim()]=r[i][1]||''}
+  document.getElementById('summary').innerHTML=
+   '<div class="stat"><span>TOTAL RECAUDADO</span><strong>'+money(indicators['Total recaudado'])+'</strong></div>'+
+   '<div class="stat"><span>TOTAL GASTADO</span><strong>'+money(indicators['Total gastado'])+'</strong></div>'+
+   '<div class="stat balance"><span>BALANCE DISPONIBLE</span><strong>'+money(indicators['Balance disponible'])+'</strong></div>'+
+   '<div class="stat"><span>PENDIENTE POR RECAUDAR</span><strong>'+money(indicators['Pendiente por recaudar'])+'</strong></div>';
+  let header=r.findIndex(x=>String(x[0]).trim()==='Fecha'&&String(x[1]).trim()==='Equipo / Fuente');
+  const inc=[],exp=[]; if(header>=0){for(let i=header+1;i<r.length;i++){if(r[i][0]||r[i][1]||r[i][2]||r[i][3])inc.push([date(r[i][0]),r[i][1]||'',r[i][2]||'',money(r[i][3])]);if(r[i][5]||r[i][6]||r[i][7]||r[i][8])exp.push([date(r[i][5]),r[i][6]||'',r[i][7]||'',money(r[i][8])]);}}
+  document.getElementById('income').innerHTML=inc.length?table(['Fecha','Equipo / Fuente','Concepto','Monto'],inc):'<p class="loading">Sin ingresos registrados.</p>';
+  document.getElementById('expenses').innerHTML=exp.length?table(['Fecha','Concepto / Proveedor','Categoría','Monto'],exp):'<p class="loading">Sin gastos registrados.</p>';
+  const bud=[]; for(let i=0;i<r.length;i++){if(r[i][5]&&r[i][5]!=='PRESUPUESTO'&&r[i][5]!=='GASTOS'&&r[i][5]!=='Fecha')bud.push([r[i][5],money(r[i][6]),r[i][7]||'']);}
+  document.getElementById('budget').innerHTML=bud.length?table(['Concepto','Monto','Estado'],bud,bud.map(x=>String(x[0]).toLowerCase().includes('total')?'budget-total':'')):'<p class="loading">Sin presupuesto registrado.</p>';
+ }catch(e){document.getElementById('summary').innerHTML='<div class="error">No se pudieron cargar las finanzas. Verifique el acceso público del Google Sheet.</div>'}
+}
+load();
+</script></body></html>
