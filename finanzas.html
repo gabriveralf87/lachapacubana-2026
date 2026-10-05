@@ -26,7 +26,7 @@ const date=v=>{if(!v)return '';let s=String(v),m=s.match(/^Date\((\d+),(\d+),(\d
 async function rows(){
  const url='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:json&sheet=Finanzas';
  const t=await fetch(url+'&headers=0',{cache:'no-store'}).then(r=>r.text()); const j=JSON.parse(t.substring(t.indexOf('{'),t.lastIndexOf('}')+1));
- return j.table.rows.map(r=>{const a=Array(11).fill('');(r.c||[]).forEach((c,i)=>a[i]=c?(c.f??c.v):'');return a;});
+ return j.table.rows.map(r=>{const a=Array(11).fill('');(r.c||[]).forEach((c,i)=>{if(!c){a[i]='';return;}const v=(c.f!==undefined&&c.f!==null)?c.f:c.v;a[i]=(v===undefined||v===null)?'':String(v);});return a;});
 }
 function table(headers,rs,classes=[]){
  return '<table><thead><tr>'+headers.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+rs.map((r,i)=>'<tr class="'+(classes[i]||'')+'">'+r.map((x,j)=>'<td class="'+(j===r.length-1?'money':'')+'">'+(x??'')+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
