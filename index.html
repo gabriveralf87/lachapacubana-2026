@@ -57,10 +57,44 @@ footer{font-size:18px}
 @media(max-width:600px){#equipos .cards{grid-template-columns:1fr;gap:22px}.committee,.sponsors-grid{grid-template-columns:1fr}.hero p{font-size:20px}.hero h1{font-size:clamp(36px,10vw,48px);overflow-wrap:anywhere}.team-emblem{padding:26px 20px 22px}#equipos .team-logo{width:210px;height:210px}.doc-actions{margin-left:0;flex-direction:row;width:100%}.doc-btn{flex:1;text-align:center}}
 @media(prefers-reduced-motion:reduce){#equipos .card,.doc-card{transition:none}#equipos .card:hover,.doc-card:hover{transform:none}}
 .venue-map{display:inline-block;color:#0d2d55;text-decoration:underline;text-underline-offset:3px}.venue-map span{display:block;margin-top:10px;font-size:17px;font-weight:800}.venue-map:hover{color:#d9272e}.venue-map:focus-visible{outline:3px solid #0d2d55;outline-offset:5px;border-radius:3px}
+
+.match-promo[hidden]{display:none}
+.match-promo{background:radial-gradient(ellipse at center,#235a8e 0%,#0d2d55 45%,#071427 90%);color:#fff;text-align:center;padding:44px 22px 46px;border-bottom:6px solid #d9272e}
+.match-promo .promo-kicker{color:#f3c24f;font-size:18px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;margin:0 0 22px}
+.promo-matchup{display:flex;align-items:center;justify-content:center;gap:34px;max-width:1100px;margin:auto}
+.promo-team{flex:1;min-width:0;display:grid;justify-items:center;gap:12px}
+.promo-team img{width:150px;height:150px;object-fit:contain;background:#fff;border-radius:50%;padding:10px;box-shadow:0 8px 28px #0005}
+.promo-team span{font-size:clamp(32px,5vw,66px);font-weight:900;line-height:1.1;text-transform:uppercase}
+.promo-vs{font-size:34px;font-weight:900;color:#f3c24f}
+.promo-details{font-size:clamp(25px,4vw,40px);font-weight:900;margin:26px 0 22px;line-height:1.3}
+.promo-link{display:inline-block;background:#d9272e;color:#fff;padding:12px 24px;border-radius:10px;font-size:18px;font-weight:900}
+.promo-link:focus-visible{outline:3px solid #f3c24f;outline-offset:5px}
+@media(max-width:600px){.match-promo{padding:30px 16px 34px}.promo-matchup{gap:10px}.promo-team img{width:95px;height:95px}.promo-team span{font-size:clamp(22px,6vw,32px)}.promo-vs{font-size:22px}.match-promo .promo-kicker{font-size:15px}.promo-details{font-size:26px}}
 </style><link rel="stylesheet" href="navigation.css"><script src="navigation.js" defer></script></head>
 <body>
 <header class="site-header"><div class="site-nav"><a class="site-brand" href="index.html" aria-label="La Chapa Cubana — Home"><img src="https://drive.google.com/thumbnail?id=1ET58pvMTyD2m4tdaB0bdSCX0FVd7vZmN&sz=w120" alt="La Chapa"><div>LA CHAPA <span>CUBANA</span></div></a><nav id="site-menu" class="site-menu" aria-label="Menú principal"><a href="index.html">Home</a><a href="resultados.html">Resultados / Calendario</a><a href="finanzas.html">Finanzas</a></nav><button class="site-menu-toggle" type="button" aria-label="Abrir menú" aria-controls="site-menu" aria-expanded="false">☰</button></div></header>
 <main id="inicio">
+<section class="match-promo" id="opening-match-promo" aria-label="Estelares vs Sharks, 16 de octubre en Babe Ruth" hidden>
+<div class="wrap"><p class="promo-kicker">¡Arranca el torneo!</p>
+<div class="promo-matchup">
+<div class="promo-team"><img src="https://drive.google.com/thumbnail?id=1gl6SJ99APP-K8eYWpxwZ1O6G4PZ_vN21&sz=w400" alt=""><span>Estelares</span></div>
+<span class="promo-vs">VS</span>
+<div class="promo-team"><img src="https://drive.google.com/thumbnail?id=1jnovo15ZRXQcQmVFEsBm3fP1bylhLSvg&sz=w400" alt=""><span>Sharks</span></div>
+</div>
+<p class="promo-details">16 OCTUBRE · BABE RUTH</p>
+<a class="promo-link" href="resultados.html">Ver calendario</a>
+</div></section>
+<script>
+(()=>{
+ const promo=document.getElementById('opening-match-promo');
+ const expiry=Date.parse('2026-10-17T00:00:00-04:00');
+ const refresh=()=>{promo.hidden=Date.now()>=expiry};
+ refresh();
+ const timer=setInterval(()=>{refresh();if(promo.hidden)clearInterval(timer)},30000);
+ document.addEventListener('visibilitychange',refresh);
+})();
+</script>
+
 <section class="hero"><div class="hero-in"><div><div class="eyebrow">Sarasota–Bradenton · Temporada 2026</div><h1>LIGA DE OTOÑO<br>DE LA CHAPA CUBANA</h1><p>Seis equipos. Béisbol competitivo. Una comunidad unida por el juego.</p><div style="margin-top:22px"><a class="fb-link" href="https://www.facebook.com/stories/122099735511436283/UzpfSVNDOjE0MTI1MDkyNjc3NDA5NTQ=/?view_single=false" target="_blank" rel="noopener"><span class="fb-icon">f</span> Facebook</a></div></div><div class="badge"><span>Inicio oficial</span><img class="hero-logo" src="https://drive.google.com/thumbnail?id=1ET58pvMTyD2m4tdaB0bdSCX0FVd7vZmN&sz=w800" alt="La Chapa Cubana"><div class="start-date">16 OCT 2026</div><span>Viernes y sábados · Sarasota–Bradenton</span><span class="motto">Patria y Vida</span></div></div></section>
 <section id="equipos"><div class="wrap"><h2 class="title">Los 6 equipos</h2><p class="sub">Temporada oficial 2026.</p><div class="cards">
 <div class="card"><div class="team-emblem"><img class="team-logo" src="https://drive.google.com/thumbnail?id=1-qWRgKW-EbeQ3weT7S31rClTQt9q2caC&sz=w400" alt="Brothers"></div><div class="team">Brothers</div><div class="contact">Capitán: <b>Onel Rodriguez</b><br><a href="mailto:onell90iml@gmail.com">onell90iml@gmail.com</a></div></div>
