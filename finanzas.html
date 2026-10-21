@@ -33,7 +33,7 @@ function table(headers,rs,classes=[]){
 }
 async function load(){
  try{
-  const [r,expenseRows]=await Promise.all([rows(),rows('F14:K100',6,1)]);
+  const [r,expenseRows,budgetRows]=await Promise.all([rows(),rows('F14:K100',6,1),rows('F4:H11',3,1)]);
   const indicators={}; for(let i=0;i<r.length;i++){if(r[i][0])indicators[String(r[i][0]).trim()]=r[i][1]||''}
   document.getElementById('summary').innerHTML=
    '<div class="stat"><span>TOTAL RECAUDADO</span><strong>'+money(indicators['Total recaudado'])+'</strong></div>'+
@@ -52,7 +52,7 @@ async function load(){
   document.getElementById('income').innerHTML=inc.length?table(['Fecha','Equipo / Fuente','Concepto','Monto'],inc):'<p class="loading">Sin ingresos registrados.</p>';
   document.getElementById('expenses').innerHTML=exp.length?table(['Fecha','Descripción','Cantidad','Precio Unitario','Categoría','Monto'],exp):'<p class="loading">Sin gastos registrados.</p>';
   const expTotal=exp.reduce((s,r)=>{let n=parseFloat(String(r[5]).replace(/[$,]/g,''));return s+(isNaN(n)?0:n)},0); document.getElementById('expenseTotal').innerHTML=exp.length?'<div style="display:flex;justify-content:flex-end;align-items:center;gap:20px;padding:18px 12px 4px;font-size:18px"><b>TOTAL GASTOS</b><strong style="font-size:24px;color:#d9272e">'+money(expTotal)+'</strong></div>':'';
-  const bud=[]; for(let i=0;i<r.length;i++){if(r[i][5] && String(r[i][7]||'').toLowerCase()==='proyectado') bud.push([r[i][5],money(r[i][6]),r[i][7]||'']);}
+  const bud=[]; for(const row of budgetRows){if(row[0] && String(row[2]||'').trim().toLowerCase()==='proyectado') bud.push([row[0],money(row[1]),row[2]||'']);}
   document.getElementById('budget').innerHTML=bud.length?table(['Concepto','Monto','Estado'],bud,bud.map(x=>String(x[0]).toLowerCase().includes('total')?'budget-total':'')):'<p class="loading">Sin presupuesto registrado.</p>';
  }catch(e){document.getElementById('summary').innerHTML='<div class="error">No se pudieron cargar las finanzas. Verifique el acceso público del Google Sheet.</div>'}
 }
