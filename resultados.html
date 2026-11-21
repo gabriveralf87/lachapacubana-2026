@@ -5,7 +5,7 @@
 .score-name{display:flex;flex-direction:column;min-width:0;line-height:1.25}.team-role{display:block;font-size:11px;font-weight:700;color:#667085;margin-top:3px}
 </style><link rel="stylesheet" href="navigation.css"><script src="navigation.js" defer></script></head><body><header class="site-header"><div class="site-nav"><a class="site-brand" href="index.html" aria-label="La Chapa Cubana — Home"><img src="https://drive.google.com/thumbnail?id=1ET58pvMTyD2m4tdaB0bdSCX0FVd7vZmN&sz=w120" alt="La Chapa"><div>LA CHAPA <span>CUBANA</span></div></a><nav id="site-menu" class="site-menu" aria-label="Menú principal"><a href="index.html">Home</a><a href="resultados.html">Resultados / Calendario</a><a href="finanzas.html">Finanzas</a></nav><button class="site-menu-toggle" type="button" aria-label="Abrir menú" aria-controls="site-menu" aria-expanded="false">☰</button></div></header>
 <div class="hero"><div class="wrap"><h1>Resultados / Calendario</h1><p>Temporada 2026 · Sarasota–Bradenton</p></div></div>
-<section><div class="wrap"><h2 class="title">Tabla del Torneo</h2><p class="sub">Desempate: 1. Récord directo · 2. Diferencial de carreras · 3. Menos carreras permitidas.</p><div class="tablebox"><table><thead><tr><th scope="col">Pos.</th><th>Equipo</th><th>JJ</th><th>G</th><th>P</th><th>RF</th><th>RC</th><th>DIF</th><th>PCT</th></tr></thead><tbody id="standings"><tr><td colspan="9">Cargando Google Sheet…</td></tr></tbody></table></div></div></section>
+<section><div class="wrap"><h2 class="title">Tabla del Torneo</h2><p class="sub">Clasificación: 1. Porcentaje de victorias (PCT) · 2. En empate, serie directa ganada 2–0 · 3. Diferencial general de carreras · 4. Menos carreras permitidas.</p><div class="tablebox"><table><thead><tr><th scope="col">Pos.</th><th>Equipo</th><th>JJ</th><th>G</th><th>P</th><th>RF</th><th>RC</th><th>DIF</th><th>PCT</th></tr></thead><tbody id="standings"><tr><td colspan="9">Cargando Google Sheet…</td></tr></tbody></table></div></div></section>
 <section style="padding-top:0"><div class="wrap"><h2 class="title">Próximas Jornadas</h2><p class="sub">Este espacio se llenará automáticamente después del sorteo.</p><div class="calendar-placeholder"><strong>Calendario Oficial 2026</strong><span>Fecha · Equipos · Juego 1 · Juego 2 · Terreno · Árbitro</span></div><div class="schedule" id="upcoming"><div class="empty">Esperando los juegos oficiales en Google Sheet.</div></div></div></section>
 <section style="padding-top:0"><div class="wrap"><h2 class="title">Calendario / Resultados</h2><p class="sub">Cada jornada es un enfrentamiento de dos juegos consecutivos.</p><div class="schedule" id="played"><div class="empty">Cargando resultados…</div></div></div></section>
 <script>
@@ -79,19 +79,35 @@ function rankTeams(rs){
  const games=rs.filter(r=>official(r)&&played(r)&&Number.isFinite(+r[3])&&Number.isFinite(+r[5]));
  const stats=Object.fromEntries(TEAMS.map(t=>[t,{jj:0,g:0,p:0,rf:0,rc:0}]));
  games.forEach(r=>{const a=stats[clean(r[2])],b=stats[clean(r[4])];if(!a||!b)return;const av=+r[3],bh=+r[5];a.jj++;b.jj++;a.rf+=av;a.rc+=bh;b.rf+=bh;b.rc+=av;if(av>bh){a.g++;b.p++}else if(bh>av){b.g++;a.p++}});
- const groups=new Map();
- TEAMS.forEach(t=>{const wins=stats[t].g;if(!groups.has(wins))groups.set(wins,[]);groups.get(wins).push(t)});
+ // PCT se compara como fracción para evitar errores de redondeo.
+ const comparePct=(a,b)=>{const x=stats[a],y=stats[b];if(!x.jj)return y.jj?1:0;if(!y.jj)return -1;return y.g*x.jj-x.g*y.jj;};
+ const groups=[];
+ for(const team of [...TEAMS].sort(comparePct)){
+  const last=groups[groups.length-1];
+  if(last&&comparePct(team,last[0])===0)last.push(team);
+  else groups.push([team]);
+ }
  const ordered=[];
- [...groups.keys()].sort((a,b)=>b-a).forEach(wins=>{
-  const tied=groups.get(wins),members=new Set(tied);
-  const direct=Object.fromEntries(tied.map(t=>[t,{games:0,wins:0}]));
-  games.forEach(r=>{const a=clean(r[2]),b=clean(r[4]);if(!members.has(a)||!members.has(b))return;direct[a].games++;direct[b].games++;if(+r[3]>+r[5])direct[a].wins++;else if(+r[5]>+r[3])direct[b].wins++});
-  // Compare direct records only when the tied teams have played a balanced mini-league.
-  const allPairsPlayed=tied.every(a=>tied.every(b=>a===b||games.some(r=>{const pair=[clean(r[2]),clean(r[4])];return pair.includes(a)&&pair.includes(b)})));
-  const balanced=tied.length>1&&allPairsPlayed&&tied.every(t=>direct[t].games>0&&direct[t].games===direct[tied[0]].games);
-  const key=t=>[balanced?direct[t].wins:0,stats[t].rf-stats[t].rc,-stats[t].rc];
-  tied.sort((a,b)=>{const ak=key(a),bk=key(b);return bk[0]-ak[0]||bk[1]-ak[1]||bk[2]-ak[2]});
-  tied.forEach(t=>ordered.push({team:t,...stats[t],tieKey:[wins,...key(t)].join('|')}));
+ groups.forEach(tied=>{
+  const sweep={};
+  // El enfrentamiento directo decide únicamente cuando dos equipos con el
+  // mismo PCT disputaron los dos juegos de la serie y uno ganó ambos.
+  if(tied.length===2){
+   const [a,b]=tied;
+   const directGames=games.filter(r=>{const pair=[clean(r[2]),clean(r[4])];return pair.includes(a)&&pair.includes(b)});
+   if(directGames.length===2){
+    const wins={ [a]:0,[b]:0 };
+    directGames.forEach(r=>{const visitor=clean(r[2]),home=clean(r[4]);if(+r[3]>+r[5])wins[visitor]++;else if(+r[5]>+r[3])wins[home]++});
+    if(wins[a]===2||wins[b]===2){sweep[a]=wins[a];sweep[b]=wins[b]}
+   }
+  }
+  tied.sort((a,b)=>(sweep[b]||0)-(sweep[a]||0)||
+   (stats[b].rf-stats[b].rc)-(stats[a].rf-stats[a].rc)||
+   stats[a].rc-stats[b].rc);
+  tied.forEach(t=>{
+   const s=stats[t],pct=s.jj?s.g/s.jj:0;
+   ordered.push({team:t,...s,tieKey:[pct,sweep[t]||0,s.rf-s.rc,-s.rc].join('|')});
+  });
  });
  ordered.forEach((x,i)=>{x.position=i>0&&x.tieKey===ordered[i-1].tieKey?ordered[i-1].position:i+1;x.pending=ordered.some((y,j)=>j!==i&&y.tieKey===x.tieKey)});
  return ordered;
